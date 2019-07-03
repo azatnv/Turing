@@ -1,0 +1,4 @@
+First Condition: 1
+Q1 1 -> Q2 _ R
+Q2 1 -> Q2 1 R
+Q2 0 -> Q0 5 H
