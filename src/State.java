@@ -19,4 +19,5 @@ public class State {
     public void setSymbol(char symbol) {
         this.symbol = symbol;
     }
+
 }
