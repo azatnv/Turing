@@ -1,5 +1,4 @@
-
-public class State {
+class State {
     private int condition;
     private char symbol;
 
@@ -8,15 +7,15 @@ public class State {
         this.symbol = symbol;
     }
 
-    public int getCondition() { return condition; }
+    int getCondition() { return condition; }
 
-    public void setCondition(int condition) {
+    void setCondition(int condition) {
         this.condition = condition;
     }
 
-    public char getSymbol() { return symbol; }
+    char getSymbol() { return symbol; }
 
-    public void setSymbol(char symbol) {
+    void setSymbol(char symbol) {
         this.symbol = symbol;
     }
 

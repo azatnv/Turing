@@ -44,7 +44,7 @@ public class Program {
             } else cmd = Command.H;
             Rule newRule = new Rule(curCond, curSym, nextCond, nextSym, cmd);
             if (!machine.addRule(newRule)) {
-                System.out.println("Ошибка : правило не было добавлено из-за превышения допустимого числа состояний 99.\nСтрока: " + lineDesc);
+                System.out.println("Ошибка: правило не было добавлено из-за превышения допустимого числа состояний 99.\nСтрока: " + lineDesc);
                 return;
             }
             if (nextCond == 0)
@@ -57,9 +57,10 @@ public class Program {
         scTape.close();
         scDesc.close();
 
-        machine.fullProcess();
+        String result = machine.fullProcess();
         if (machine.isOver()) {
-            System.out.println("Машина завершила работу. Совершено шагов " + machine.getAmountSteps());
+            System.out.println("Машина завершила работу. Совершено шагов " + machine.getAmountSteps() +
+                    "\nИтоговая лента: \"" + result + "\"");
         }
 
         machine.refresh();

@@ -1,9 +1,8 @@
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-public class Machine {
+class Machine {
     private static final int MAX_CONDITIONS = 99;
     private static final int INITIAL_CURSOR_POSITION = 0;
     private static final int MAX_TAPE_LENGTH = 100000;
@@ -116,13 +115,13 @@ public class Machine {
         steps.add(String.valueOf(temp));
     }
 
-    public List<StringBuilder> debugInfo() {
-        return null;
-    }
+//    public List<StringBuilder> debugInfo() {
+//        return null;
+//    }
 
-    List<String> getSteps(int from, int to) {
-        return steps.subList(from, to);
-    }
+//    List<String> getSteps(int from, int to) {
+//        return steps.subList(from, to);
+//    }
 
     void refresh() {
         tapeLength = startTape.length();

@@ -1,5 +1,5 @@
 
-public class Rule {
+class Rule {
     private int curCond;
     private int nextCond;
     private char curSym;
@@ -14,15 +14,15 @@ public class Rule {
         this.cmd = cmd;
     }
 
-    public int getCurCond() { return curCond; }
+    int getCurCond() { return curCond; }
 
-    public int getNextCond() { return nextCond; }
+    int getNextCond() { return nextCond; }
 
-    public char getCurSym() { return curSym; }
+    char getCurSym() { return curSym; }
 
-    public char getNextSym() { return nextSym; }
+    char getNextSym() { return nextSym; }
 
-    public Command getCmd() { return cmd; }
+    Command getCmd() { return cmd; }
 
     @Override
     public int hashCode() {
