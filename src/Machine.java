@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 class Machine {
@@ -10,8 +11,10 @@ class Machine {
 
     private State startState;
     private StringBuilder startTape;
+
     private Set<Rule> rules;
     private ArrayList<String> steps;
+    private String[] betweenTwoSteps = new String[2];
 
     private State state;
     private StringBuilder finishTape;
@@ -23,7 +26,7 @@ class Machine {
 
 
     Machine(State firstState, StringBuilder firstTape) {
-        this.state = firstState;
+        this.state = new State(firstState.getCondition(), firstState.getSymbol());
         this.startState = new State(firstState.getCondition(), firstState.getSymbol());
         this.startTape = new StringBuilder(firstTape);
         this.finishTape = new StringBuilder(firstTape);
@@ -43,92 +46,106 @@ class Machine {
     String fullProcess() {
         int countSteps = 0;
         while (state.getCondition() != 0) {
-            if (countSteps > 2 * MAX_STEPS) {
+            int exitCode = performStep();
+            if (exitCode == -1) {
+                amountSteps = countSteps;
+                return String.valueOf(finishTape);
+            } else countSteps += exitCode;
+            if (countSteps > MAX_STEPS) {
+                amountSteps = countSteps;
                 System.out.println("Превышено число шагов 1000000");
-                return null;
+                return String.valueOf(finishTape);
             }
             if (tapeLength > MAX_TAPE_LENGTH) {
+                amountSteps = countSteps;
                 System.out.println("Длина ленты слишком большая (шаг " + countSteps + ")");
-                return null;
+                return String.valueOf(finishTape);
             }
-            int currentCond = state.getCondition();
-            char currentSym = state.getSymbol();
-            int nextCond = -1;
-            char nextSym = ' ';
-            Command cmd = Command.H;
-            for (Rule rule: rules) {
-                if (currentCond == rule.getCurCond() && currentSym == rule.getCurSym()) {
-                    nextCond = rule.getNextCond();
-                    nextSym = rule.getNextSym();
-                    cmd = rule.getCmd();
-                    break;
-                }
-            }
-            if (nextSym == ' ' || nextCond == -1) {
-                System.out.println("Ошибка: неполное описание состояния Q" + currentCond + "!");
-                return null;
-            } else if (nextSym != currentSym) {
-                if (nextSym == '_') {
-                    finishTape.deleteCharAt(cursor);
-                    finishTape.insert(cursor, ' ');
-                    state.setSymbol('_');
-                } else {
-                    finishTape.deleteCharAt(cursor);
-                    finishTape.insert(cursor, nextSym);
-                    state.setSymbol(nextSym);
-                }
-                addStep();
-                countSteps++;
-            }
-
-            if (cmd == Command.R) {
-                cursor++;
-                if (cursor == tapeLength) {
-                    finishTape.append(new StringBuilder(" "));
-                    tapeLength++;
-                }
-            } else if (cmd == Command.L)  {
-                cursor--;
-                if (cursor == -1) {
-                    finishTape = new StringBuilder(" ").append(finishTape);
-                    cursor = 0;
-                }
-            }
-            if (cmd != Command.H) {
-                addStep();
-                countSteps++;
-            }
-
-            state.setSymbol(finishTape.charAt(cursor));
-            state.setCondition(nextCond);
         }
-
         amountSteps = countSteps;
         isOver = true;
         return String.valueOf(finishTape);
     }
 
-    private void addStep() {
+    private void addStep(int index) {
         StringBuilder temp = new StringBuilder(finishTape);
         temp.insert(cursor + 1, '|');
         temp.insert(cursor, '|');
         steps.add(String.valueOf(temp));
+        betweenTwoSteps[index] = "\""+ temp + "\" Q" + state.getCondition();
     }
 
-//    public List<StringBuilder> debugInfo() {
-//        return null;
-//    }
+    int performStep() {
+        betweenTwoSteps[0] = null;
+        betweenTwoSteps[1] = null;
+        int result = 0;
+        int currentCond = state.getCondition();
+        char currentSym = state.getSymbol();
+        int nextCond = -1;
+        char nextSym = ' ';
+        Command cmd = Command.H;
+        for (Rule rule: rules) {
+            if (currentCond == rule.getCurCond() && currentSym == rule.getCurSym()) {
+                nextCond = rule.getNextCond();
+                nextSym = rule.getNextSym();
+                cmd = rule.getCmd();
+                break;
+            }
+        }
+        if (nextSym == ' ' || nextCond == -1) {
+            System.out.println("Ошибка: неполное описание состояния Q" + currentCond + "!");
+            return -1;
+        } else if (nextSym != currentSym) {
+            if (nextSym == '_') {
+                finishTape.deleteCharAt(cursor);
+                finishTape.insert(cursor, '_');
+                state.setSymbol('_');
+            } else {
+                finishTape.deleteCharAt(cursor);
+                finishTape.insert(cursor, nextSym);
+                state.setSymbol(nextSym);
+            }
+            addStep(0);
+            result += 1;
+        }
 
-//    List<String> getSteps(int from, int to) {
-//        return steps.subList(from, to);
-//    }
+        state.setCondition(nextCond);
+
+        if (cmd == Command.R) {
+            cursor++;
+            if (cursor == tapeLength) {
+                finishTape.append(new StringBuilder(" "));
+                tapeLength++;
+            }
+        } else if (cmd == Command.L)  {
+            cursor--;
+            if (cursor == -1) {
+                finishTape = new StringBuilder(" ").append(finishTape);
+                cursor = 0;
+            }
+        }
+        if (cmd != Command.H) {
+            addStep(1);
+            result += 1;
+        }
+
+        state.setSymbol(finishTape.charAt(cursor));
+        return result;
+    }
+
+    List<String> getSteps(int to) {
+        return steps.subList(0, to);
+    }
 
     void refresh() {
         tapeLength = startTape.length();
         finishTape = new StringBuilder(startTape);
         state = new State(startState.getCondition(), startState.getSymbol());
-        this.cursor = INITIAL_CURSOR_POSITION;
+        cursor = INITIAL_CURSOR_POSITION;
+        steps.clear();
     }
+
+    String[] getBetweenTwoSteps() { return betweenTwoSteps; }
 
     boolean isOver() { return isOver; }
 
