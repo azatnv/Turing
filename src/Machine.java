@@ -114,13 +114,13 @@ class Machine {
         if (cmd == Command.R) {
             cursor++;
             if (cursor == tapeLength) {
-                finishTape.append(new StringBuilder(" "));
+                finishTape.append(new StringBuilder("_"));
                 tapeLength++;
             }
         } else if (cmd == Command.L)  {
             cursor--;
             if (cursor == -1) {
-                finishTape = new StringBuilder(" ").append(finishTape);
+                finishTape = new StringBuilder("_").append(finishTape);
                 cursor = 0;
             }
         }

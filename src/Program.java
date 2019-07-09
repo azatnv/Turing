@@ -6,12 +6,12 @@ import java.util.Scanner;
 public class Program {
 
     public static void main(String[] args) throws FileNotFoundException {
-        args[0] = ".\\input\\initial_tape"; //временная штука
-        args[1] = ".\\input\\description";  //временная штука
-        args[2] = ".\\output\\final_tape";  //временная штука
+        args[0] = ".\\input\\initial_tape_sum"; //временная штука
+        args[1] = ".\\input\\description_sum";  //временная штука
+        args[2] = ".\\output\\final_tape_sum";  //временная штука
 
         Scanner scTape = new Scanner(new File(args[0]));
-        StringBuilder firstTape = new StringBuilder(scTape.nextLine().trim());
+        StringBuilder firstTape = new StringBuilder(scTape.nextLine().trim().replace(' ', '_'));
         char initSym = firstTape.charAt(0);
 
         Scanner scDesc = new Scanner(new File(args[1]));
@@ -160,7 +160,6 @@ public class Program {
                     str = in.readLine();
                     continue;
                 }
-
                 str = in.readLine();
             }
             System.out.println("Машина закончила работу");

@@ -1,0 +1,19 @@
+First Condition: 1
+Q1 1 -> Q1 1 R
+Q1 _ -> Q2 _ R
+Q2 _ -> Q2 _ R
+Q2 1 -> Q3 1 R
+Q3 1 -> Q4 1 H
+Q3 _ -> Q10 _ L
+Q10 1 -> Q11 _ L
+Q11 _ -> Q11 _ L
+Q11 1 -> Q12 1 R
+Q12 _ -> Q0 1 H
+Q4 1 -> Q4 1 R
+Q4 _ -> Q5 _ L
+Q5 1 -> Q6 _ L
+Q6 1 -> Q6 1 L
+Q6 _ -> Q7 _ H
+Q7 _ -> Q7 _ L
+Q7 1 -> Q8 1 R
+Q8 _ -> Q2 1 R
