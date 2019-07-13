@@ -1,0 +1,6 @@
+First Condition: 1
+Q1 _ -> Q2 x R
+Q1 x -> Q2 _ R
+Q2 _ -> Q1 x L
+Q2 x -> Q1 _ L
+Q1 n -> Q0 n H

@@ -10,22 +10,31 @@ public class Program {
         File description = new File(args[1]);
         File finalTape = new File(args[2]);
         if (!initialTape.exists()) {
-            System.out.println("Файл не найден: " + initialTape.getName());
+            System.out.println("Файл не найден " + initialTape.getName());
             return;
         } else if (!description.exists()) {
-            System.out.println("Файл не найден: " + description.getName());
+            System.out.println("Файл не найден " + description.getName());
             return;
         } else if (!finalTape.exists()) {
-            System.out.println("Файл не найден: " + finalTape.getName());
+            System.out.println("Файл не найден " + finalTape.getName());
             return;
         }
 
         Scanner scTape = new Scanner(initialTape);
         StringBuilder firstTape = new StringBuilder(scTape.nextLine().trim().replace(' ', '_'));
+        if (firstTape.length() == 0) {
+            System.out.println("Ошибка: неверный формат файла " + initialTape.getName());
+            return;
+        }
         char initSym = firstTape.charAt(0);
 
         Scanner scDesc = new Scanner(description);
-        int initCond = Integer.parseInt(scDesc.nextLine().trim().replace("First Condition: ", ""));
+        String strInitCond = scDesc.nextLine();
+        if (!strInitCond.matches("^First\\sCondition:\\s\\d+$")) {
+            System.out.println("Ошибка: неверный формат файла " + description.getName());
+            return;
+        }
+        int initCond = Integer.parseInt(strInitCond.trim().replace("First Condition: ", ""));
 
         State firstState = new State(initCond, initSym);
         Machine machine = new Machine(firstState, firstTape);
@@ -79,7 +88,7 @@ public class Program {
                 out.write("Конечная лента:  \"" + result + "\"\n");
                 out.close();
             } else {
-                System.out.println("Машина не звершает своё выполнение (выходной файл не записан). Шаг прерывания " + machine.getAmountSteps() +
+                System.out.println("Машина не завершает своё выполнение (выходной файл не записан). Шаг прерывания " + machine.getAmountSteps() +
                         "\nЛента: \"" + result + "\"");
             }
 
@@ -105,8 +114,7 @@ public class Program {
                     "Q" + firstState.getCondition() + " - начальные параметры");
             System.out.println("Начните вводить команды");
             int allSteps = machine.getAmountSteps();
-            int i = 0;
-            StringBuilder previousTape = new StringBuilder();
+            Integer i = 0;
             Queue<Integer> breakpoints = new PriorityQueue<>();
             breakpoints.add(allSteps);
             str = in.readLine();
@@ -127,35 +135,17 @@ public class Program {
                         } else break;
                     }
                     if (point != null) {
-                        while (i < point) {
-                            machine.performStep();
-                            if (machine.getBetweenTwoSteps()[0] != null) {
-                                i++;
-                                previousTape = machine.getBetweenTwoSteps()[0];
-                            }
-                            if (machine.getBetweenTwoSteps()[1] != null) {
-                                i++;
-                                previousTape = machine.getBetweenTwoSteps()[1];
-                            }
+                        while (i < point - 1) {
+                            i = printStep(i, machine, true);
                         }
-                        if (i > point) {
-                            System.out.println("шаг " + (i-1) + ": " + machine.getBetweenTwoSteps()[0]);
-                        } else System.out.println("шаг " + i + ": \"" + previousTape);
+                        i = printStep(i, machine, false);
                         if (i == allSteps) {
                             System.out.println("Машина закончила работу");
                             return;
                         }
                     }
                 } else if (str.equals("s")) {
-                    machine.performStep();
-                    if (machine.getBetweenTwoSteps()[0] != null) {
-                        i++;
-                        System.out.println("шаг " + i + ": " + machine.getBetweenTwoSteps()[0]);
-                    }
-                    if (machine.getBetweenTwoSteps()[1] != null) {
-                        i++;
-                        System.out.println("шаг " + i + ": " + machine.getBetweenTwoSteps()[1]);
-                    }
+                    i = printStep(i, machine, false);
                     if (i == allSteps) {
                         System.out.println("Машина закончила работу");
                         return;
@@ -171,5 +161,20 @@ public class Program {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private static Integer printStep(Integer i, Machine machine, boolean isContinue) {
+        machine.performStep();
+        if (machine.getBetweenTwoSteps()[0] != null) {
+            i++;
+            if (!isContinue)
+                System.out.println("шаг " + i + ": " + machine.getBetweenTwoSteps()[0]);
+        }
+        if (machine.getBetweenTwoSteps()[1] != null) {
+            i++;
+            if (!isContinue)
+                System.out.println("шаг " + i + ": " + machine.getBetweenTwoSteps()[1]);
+        }
+        return i;
     }
 }

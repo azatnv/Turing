@@ -51,7 +51,7 @@ class Machine {
                 finishTape.insert(cursor, '|');
                 return String.valueOf(finishTape);
             } else countSteps += exitCode;
-            if (countSteps > MAX_STEPS) {
+            if (countSteps >= MAX_STEPS) {
                 amountSteps = countSteps;
                 isOver = true;
                 finishTape.insert(cursor + 1, '|');
@@ -59,7 +59,7 @@ class Machine {
                 System.out.println("Превышено число шагов 1000000");
                 return String.valueOf(finishTape);
             }
-            if (tapeLength > MAX_TAPE_LENGTH) {
+            if (tapeLength >= MAX_TAPE_LENGTH) {
                 amountSteps = countSteps;
                 isOver = true;
                 finishTape.insert(cursor + 1, '|');
