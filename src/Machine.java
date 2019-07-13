@@ -124,13 +124,13 @@ class Machine {
         state.setCondition(nextCond);
 
         if (cmd == Command.R) {
-            cursor++;
+            cursor += Command.R.getMove();
             if (cursor == tapeLength) {
                 finishTape.insert(tapeLength, "_");
                 tapeLength++;
             }
         } else if (cmd == Command.L)  {
-            cursor--;
+            cursor += Command.L.getMove();
             if (cursor == -1) {
                 finishTape.insert(0, "_");
                 cursor = 0;
