@@ -114,7 +114,7 @@ public class Program {
                     "Q" + firstState.getCondition() + " - начальные параметры");
             System.out.println("Начните вводить команды");
             int allSteps = machine.getAmountSteps();
-            Integer i = 0;
+            int i = 0;
             Queue<Integer> breakpoints = new PriorityQueue<>();
             breakpoints.add(allSteps);
             str = in.readLine();
@@ -138,7 +138,10 @@ public class Program {
                         while (i < point - 1) {
                             i = printStep(i, machine, true);
                         }
-                        i = printStep(i, machine, false);
+                        int old = i;
+                        while (old == i) {
+                            i = printStep(i, machine, false);
+                        }
                         if (i == allSteps) {
                             System.out.println("Машина закончила работу");
                             return;
@@ -163,7 +166,7 @@ public class Program {
         }
     }
 
-    private static Integer printStep(Integer i, Machine machine, boolean isContinue) {
+    private static int printStep(int i, Machine machine, boolean isContinue) {
         machine.performStep();
         if (machine.getBetweenTwoSteps()[0] != null) {
             i++;
