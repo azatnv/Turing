@@ -6,15 +6,25 @@ import java.util.Scanner;
 public class Program {
 
     public static void main(String[] args) throws FileNotFoundException {
-        args[0] = ".\\input\\initial_tape_sum"; //временная штука
-        args[1] = ".\\input\\description_sum";  //временная штука
-        args[2] = ".\\output\\final_tape_sum";  //временная штука
+        File initialTape = new File(args[0]);
+        File description = new File(args[1]);
+        File finalTape = new File(args[2]);
+        if (!initialTape.exists()) {
+            System.out.println("Файл не найден: " + initialTape.getName());
+            return;
+        } else if (!description.exists()) {
+            System.out.println("Файл не найден: " + description.getName());
+            return;
+        } else if (!finalTape.exists()) {
+            System.out.println("Файл не найден: " + finalTape.getName());
+            return;
+        }
 
-        Scanner scTape = new Scanner(new File(args[0]));
+        Scanner scTape = new Scanner(initialTape);
         StringBuilder firstTape = new StringBuilder(scTape.nextLine().trim().replace(' ', '_'));
         char initSym = firstTape.charAt(0);
 
-        Scanner scDesc = new Scanner(new File(args[1]));
+        Scanner scDesc = new Scanner(description);
         int initCond = Integer.parseInt(scDesc.nextLine().trim().replace("First Condition: ", ""));
 
         State firstState = new State(initCond, initSym);
@@ -53,7 +63,7 @@ public class Program {
                 hasStop = true;
         }
         if (!hasStop) {
-            System.out.println("Ошибка: в машине отсутствует останов (сотояние Q0)!)");
+            System.out.println("Ошибка: в машине отсутствует останов (сотояние Q0)!");
             return;
         }
         scTape.close();
@@ -61,17 +71,12 @@ public class Program {
 
         try {
             String result = machine.fullProcess();
-            if (machine.isOver()) {
+            if (!machine.hasProblem()) {
                 System.out.println("Машина готова к отладке (выходной файл записан). Всего шагов " + machine.getAmountSteps() +
                         "\nКонечная лента: \"" + result + "\"");
-                FileWriter out = new FileWriter(new File(args[2]));
+                FileWriter out = new FileWriter(finalTape);
                 out.write("Начальная лента: \"" + firstTape + "\"\n");
-                out.write("Конечная лента:  \"" + result + "\"\n\nШАГИ:\n");
-                int i = 1;
-                for (String el: machine.getSteps(machine.getAmountSteps())) {
-                    out.write("шаг " + i + ": \"" + el + "\"\n");
-                    i++;
-                }
+                out.write("Конечная лента:  \"" + result + "\"\n");
                 out.close();
             } else {
                 System.out.println("Машина не звершает своё выполнение (выходной файл не записан). Шаг прерывания " + machine.getAmountSteps() +
@@ -93,7 +98,7 @@ public class Program {
                                                   "\n  2) c" +
                                                   "\n     (машина продолжает работу до следующей точки останова)" +
                                                   "\n  3) s" +
-                                                  "\n     (выполняет одно действие - один шаг)" +
+                                                  "\n     (выполняет одно правило - один или два шага (либо машина стоит на месте))" +
                                                   "\n  4) stop " +
                                                   "\n     (завершает работу машины)\n\n");
             System.out.println("шаг 0: \"" + firstTape.insert(1, '|').insert(0, '|') + "\", " +
@@ -101,7 +106,7 @@ public class Program {
             System.out.println("Начните вводить команды");
             int allSteps = machine.getAmountSteps();
             int i = 0;
-            String previousTape = "";
+            StringBuilder previousTape = new StringBuilder();
             Queue<Integer> breakpoints = new PriorityQueue<>();
             breakpoints.add(allSteps);
             str = in.readLine();
@@ -135,7 +140,7 @@ public class Program {
                         }
                         if (i > point) {
                             System.out.println("шаг " + (i-1) + ": " + machine.getBetweenTwoSteps()[0]);
-                        } else System.out.println("шаг " + i + ": " + previousTape);
+                        } else System.out.println("шаг " + i + ": \"" + previousTape);
                         if (i == allSteps) {
                             System.out.println("Машина закончила работу");
                             return;

@@ -1,0 +1,3 @@
+First Condition: 1
+Q1 _ -> Q1 y R
+Q1 t -> Q0 t H

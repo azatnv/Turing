@@ -1,6 +1,4 @@
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 class Machine {
@@ -13,8 +11,7 @@ class Machine {
     private StringBuilder startTape;
 
     private Set<Rule> rules;
-    private ArrayList<String> steps;
-    private String[] betweenTwoSteps = new String[2];
+    private StringBuilder[] betweenTwoSteps = new StringBuilder[2];
 
     private State state;
     private StringBuilder finishTape;
@@ -22,6 +19,7 @@ class Machine {
     private int cursor;
 
     private boolean isOver = false;
+    private boolean problem = true;
     private int amountSteps = 0;
 
 
@@ -32,7 +30,6 @@ class Machine {
         this.finishTape = new StringBuilder(firstTape);
         this.tapeLength = firstTape.length();
         this.rules = new HashSet<>();
-        this.steps = new ArrayList<>();
         this.cursor = INITIAL_CURSOR_POSITION;
     }
 
@@ -49,21 +46,33 @@ class Machine {
             int exitCode = performStep();
             if (exitCode == -1) {
                 amountSteps = countSteps;
+                isOver = true;
+                finishTape.insert(cursor + 1, '|');
+                finishTape.insert(cursor, '|');
                 return String.valueOf(finishTape);
             } else countSteps += exitCode;
             if (countSteps > MAX_STEPS) {
                 amountSteps = countSteps;
+                isOver = true;
+                finishTape.insert(cursor + 1, '|');
+                finishTape.insert(cursor, '|');
                 System.out.println("Превышено число шагов 1000000");
                 return String.valueOf(finishTape);
             }
             if (tapeLength > MAX_TAPE_LENGTH) {
                 amountSteps = countSteps;
+                isOver = true;
+                finishTape.insert(cursor + 1, '|');
+                finishTape.insert(cursor, '|');
                 System.out.println("Длина ленты слишком большая (шаг " + countSteps + ")");
                 return String.valueOf(finishTape);
             }
         }
         amountSteps = countSteps;
+        problem = false;
         isOver = true;
+        finishTape.insert(cursor + 1, '|');
+        finishTape.insert(cursor, '|');
         return String.valueOf(finishTape);
     }
 
@@ -71,8 +80,9 @@ class Machine {
         StringBuilder temp = new StringBuilder(finishTape);
         temp.insert(cursor + 1, '|');
         temp.insert(cursor, '|');
-        steps.add(String.valueOf(temp));
-        betweenTwoSteps[index] = "\""+ temp + "\" Q" + state.getCondition();
+        temp.insert(0, "\"");
+        temp.insert(temp.length(), "\" Q" + state.getCondition());
+        betweenTwoSteps[index] = temp;
     }
 
     int performStep() {
@@ -105,7 +115,9 @@ class Machine {
                 finishTape.insert(cursor, nextSym);
                 state.setSymbol(nextSym);
             }
-            addStep(0);
+            if (isOver) {
+                addStep(0);
+            }
             result += 1;
         }
 
@@ -114,18 +126,21 @@ class Machine {
         if (cmd == Command.R) {
             cursor++;
             if (cursor == tapeLength) {
-                finishTape.append(new StringBuilder("_"));
+                finishTape.insert(tapeLength, "_");
                 tapeLength++;
             }
         } else if (cmd == Command.L)  {
             cursor--;
             if (cursor == -1) {
-                finishTape = new StringBuilder("_").append(finishTape);
+                finishTape.insert(0, "_");
                 cursor = 0;
+                tapeLength++;
             }
         }
         if (cmd != Command.H) {
-            addStep(1);
+            if (isOver) {
+                addStep(1);
+            }
             result += 1;
         }
 
@@ -133,21 +148,16 @@ class Machine {
         return result;
     }
 
-    List<String> getSteps(int to) {
-        return steps.subList(0, to);
-    }
-
     void refresh() {
         tapeLength = startTape.length();
         finishTape = new StringBuilder(startTape);
         state = new State(startState.getCondition(), startState.getSymbol());
         cursor = INITIAL_CURSOR_POSITION;
-        steps.clear();
     }
 
-    String[] getBetweenTwoSteps() { return betweenTwoSteps; }
+    StringBuilder[] getBetweenTwoSteps() { return betweenTwoSteps; }
 
-    boolean isOver() { return isOver; }
+    boolean hasProblem() { return problem; }
 
     int getAmountSteps() { return amountSteps; }
 }
